@@ -5,12 +5,18 @@ import { useAuth } from '../hooks/useAuth'
 import WebLayout from '../layouts/WebLayout'
 import UserLayout from '../layouts/UserLayout'
 import AdminLayout from '../layouts/AdminLayout'
+import AuthLayout from '../layouts/AuthLayout'
 
 // Web Pages
 import Home from '../pages/web/Home'
 import About from '../pages/web/About'
 import Contact from '../pages/web/Contact'
-import Login from '../pages/web/Login'
+
+// Auth Pages
+import Login from '../pages/auth/Login'
+import Register from '../pages/auth/Register'
+import ForgotPassword from '../pages/auth/ForgotPassword'
+import ResetPassword from '../pages/auth/ResetPassword'
 
 // User Pages
 import UserDashboard from '../pages/user/Dashboard'
@@ -32,17 +38,25 @@ const AppRoutes = () => {
 
     return (
         <Routes>
+            {/* Auth Routes (Public) */}
+            <Route element={<AuthLayout />}>
+                <Route
+                    path="/login"
+                    element={isAuthenticated ? <Navigate to="/user/dashboard" replace /> : <Login />}
+                />
+                <Route
+                    path="/register"
+                    element={isAuthenticated ? <Navigate to="/user/dashboard" replace /> : <Register />}
+                />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+            </Route>
+
             {/* Web Routes (Public) */}
             <Route element={<WebLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route
-                    path="/login"
-                    element={
-                        isAuthenticated ? <Navigate to="/user/dashboard" replace /> : <Login />
-                    }
-                />
             </Route>
 
             {/* User Routes (Protected) */}
