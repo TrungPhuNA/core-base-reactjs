@@ -1,5 +1,6 @@
 import { useAuth } from '../../hooks/useAuth'
 import Card from '../../components/common/Card'
+import ToastDemo from '../../components/common/ToastDemo'
 
 const UserDashboard = () => {
     const { user } = useAuth()
@@ -45,30 +46,34 @@ const UserDashboard = () => {
                 ))}
             </div>
 
-            <Card title="Hoạt động gần đây">
-                <div className="space-y-4">
-                    {recentActivities.map((activity) => (
-                        <div
-                            key={activity.id}
-                            className="flex items-center justify-between py-3 border-b last:border-b-0"
-                        >
-                            <div className="flex items-center space-x-3">
-                                <div
-                                    className={`w-2 h-2 rounded-full ${
-                                        activity.status === 'success'
-                                            ? 'bg-green-500'
-                                            : 'bg-blue-500'
-                                    }`}
-                                ></div>
-                                <div>
-                                    <p className="text-gray-800 font-medium">{activity.action}</p>
-                                    <p className="text-gray-500 text-sm">{activity.time}</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card title="Hoạt động gần đây">
+                    <div className="space-y-4">
+                        {recentActivities.map((activity) => (
+                            <div
+                                key={activity.id}
+                                className="flex items-center justify-between py-3 border-b last:border-b-0"
+                            >
+                                <div className="flex items-center space-x-3">
+                                    <div
+                                        className={`w-2 h-2 rounded-full ${
+                                            activity.status === 'success'
+                                                ? 'bg-green-500'
+                                                : 'bg-blue-500'
+                                        }`}
+                                    ></div>
+                                    <div>
+                                        <p className="text-gray-800 font-medium">{activity.action}</p>
+                                        <p className="text-gray-500 text-sm">{activity.time}</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
-            </Card>
+                        ))}
+                    </div>
+                </Card>
+
+                <ToastDemo />
+            </div>
         </div>
     )
 }

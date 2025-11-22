@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from 'react'
+import toast from '../utils/toast'
 
 export const AuthContext = createContext(null)
 
@@ -23,6 +24,7 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
         setUser(null)
         localStorage.removeItem('user')
+        toast.success('Đăng xuất thành công! Hẹn gặp lại! 👋')
     }
 
     const value = {

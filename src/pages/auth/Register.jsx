@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import toast from '../../utils/toast'
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -27,12 +28,12 @@ const Register = () => {
         e.preventDefault()
 
         if (formData.password !== formData.confirmPassword) {
-            alert('Mật khẩu không khớp!')
+            toast.error('Mật khẩu không khớp!')
             return
         }
 
         if (!formData.agree) {
-            alert('Vui lòng đồng ý với điều khoản sử dụng!')
+            toast.warning('Vui lòng đồng ý với điều khoản sử dụng!')
             return
         }
 
@@ -45,6 +46,7 @@ const Register = () => {
         }
 
         login(userData)
+        toast.success(`Chào mừng ${formData.name}! Đăng ký thành công! 🎉`)
         navigate('/user/dashboard')
     }
 

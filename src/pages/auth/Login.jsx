@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import toast from '../../utils/toast'
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -33,13 +34,16 @@ const Login = () => {
         }
 
         login(userData)
+        toast.success(`Đăng nhập thành công! Chào mừng ${userData.name} 👋`)
 
         // Redirect based on role
-        if (formData.role === 'admin') {
-            navigate('/admin/dashboard')
-        } else {
-            navigate('/user/dashboard')
-        }
+        setTimeout(() => {
+            if (formData.role === 'admin') {
+                navigate('/admin/dashboard')
+            } else {
+                navigate('/user/dashboard')
+            }
+        }, 500)
     }
 
     return (
