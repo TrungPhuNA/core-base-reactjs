@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import toast from '../../utils/toast'
 import FloatingInput from '../../components/common/FloatingInput'
-import FloatingSelect from '../../components/common/FloatingSelect'
+import FloatingReactSelect from '../../components/common/FloatingReactSelect'
 
 const Login = () => {
     const [formData, setFormData] = useState({
@@ -80,17 +80,19 @@ const Login = () => {
                 />
 
                 {/* Role Selection */}
-                <FloatingSelect
+                <FloatingReactSelect
                     id="role"
                     name="role"
                     label="Vai trò"
                     value={formData.role}
                     onChange={handleChange}
                     options={[
-                        { value: 'user', label: 'User' },
-                        { value: 'admin', label: 'Admin' },
+                        { value: 'user', label: '👤 User' },
+                        { value: 'admin', label: '👑 Admin' },
                     ]}
                     required
+                    isSearchable={false}
+                    isClearable={false}
                 />
 
                 {/* Remember & Forgot Password */}

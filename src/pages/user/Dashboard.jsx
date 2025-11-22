@@ -1,6 +1,7 @@
 import { useAuth } from '../../hooks/useAuth'
 import Card from '../../components/common/Card'
 import ToastDemo from '../../components/common/ToastDemo'
+import FloatingSelectDemo from '../../components/common/FloatingSelectDemo'
 
 const UserDashboard = () => {
     const { user } = useAuth()
@@ -46,7 +47,7 @@ const UserDashboard = () => {
                 ))}
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <Card title="Hoạt động gần đây">
                     <div className="space-y-4">
                         {recentActivities.map((activity) => (
@@ -74,6 +75,9 @@ const UserDashboard = () => {
 
                 <ToastDemo />
             </div>
+
+            {/* Floating Select Demo */}
+            <FloatingSelectDemo />
         </div>
     )
 }

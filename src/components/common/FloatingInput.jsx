@@ -32,8 +32,8 @@ const FloatingInput = ({
                 required={required}
                 autoComplete={autoComplete}
                 className={`
-                    peer w-full px-4 pt-6 pb-2 text-base
-                    border-2 rounded-lg
+                    peer w-full px-4 pt-5 pb-1.5 text-base
+                    border rounded-lg
                     bg-white
                     transition-all duration-200
                     outline-none
@@ -51,8 +51,8 @@ const FloatingInput = ({
                     absolute left-4 transition-all duration-200 pointer-events-none
                     ${
                         isFloating
-                            ? 'top-1.5 text-xs font-medium text-blue-600'
-                            : 'top-4 text-base text-gray-500'
+                            ? 'top-1 text-xs font-medium text-blue-600'
+                            : 'top-3.5 text-base text-gray-500'
                     }
                 `}
             >
