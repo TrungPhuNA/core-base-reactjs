@@ -2,8 +2,10 @@ import { useState } from 'react'
 import Card from '../../components/common/Card'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const Contact = () => {
+    usePageTitle('Liên hệ')
     const [formData, setFormData] = useState({
         name: '',
         email: '',

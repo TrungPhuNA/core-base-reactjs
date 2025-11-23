@@ -2,15 +2,23 @@ import { useState, useMemo } from 'react'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
 import Modal from '../../components/common/Modal'
-import Input from '../../components/common/Input'
+import FloatingInput from '../../components/common/FloatingInput'
+import FloatingReactSelect from '../../components/common/FloatingReactSelect'
+import ConfirmDialog from '../../components/common/ConfirmDialog'
+import toast from '../../utils/toast'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const AdminUsers = () => {
+    usePageTitle('Quản lý Users')
+
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [editingUser, setEditingUser] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
     const [filterRole, setFilterRole] = useState('all')
     const [filterStatus, setFilterStatus] = useState('all')
+    const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, userId: null, userName: '' })
+    const [isDeleting, setIsDeleting] = useState(false)
 
     const [users, setUsers] = useState([
         {
@@ -66,6 +74,7 @@ const AdminUsers = () => {
     const [newUser, setNewUser] = useState({
         name: '',
         email: '',
+        password: '',
         role: 'user',
         status: 'active',
     })
@@ -91,34 +100,51 @@ const AdminUsers = () => {
             createdAt: new Date().toISOString().split('T')[0],
         }
         setUsers([...users, user])
-        setNewUser({ name: '', email: '', role: 'user', status: 'active' })
+        toast.success('Thêm user thành công!')
+        setNewUser({ name: '', email: '', password: '', role: 'user', status: 'active' })
         setShowModal(false)
     }
 
     const handleEditUser = (user) => {
-        setEditingUser(user)
+        setEditingUser({ ...user })
         setShowEditModal(true)
     }
 
     const handleUpdateUser = (e) => {
         e.preventDefault()
         setUsers(users.map((u) => (u.id === editingUser.id ? editingUser : u)))
+        toast.success('Cập nhật user thành công!')
         setShowEditModal(false)
         setEditingUser(null)
     }
 
-    const handleDeleteUser = (id) => {
-        if (confirm('Bạn có chắc muốn xóa user này?')) {
-            setUsers(users.filter((u) => u.id !== id))
-        }
+    const handleDeleteUser = (user) => {
+        setDeleteConfirm({
+            isOpen: true,
+            userId: user.id,
+            userName: user.name,
+        })
     }
 
-    const handleToggleStatus = (id) => {
+    const confirmDelete = () => {
+        setIsDeleting(true)
+        // Simulate async operation
+        setTimeout(() => {
+            setUsers(users.filter((u) => u.id !== deleteConfirm.userId))
+            toast.success('Xóa user thành công!')
+            setDeleteConfirm({ isOpen: false, userId: null, userName: '' })
+            setIsDeleting(false)
+        }, 500)
+    }
+
+    const handleToggleStatus = (user) => {
+        const newStatus = user.status === 'active' ? 'inactive' : 'active'
         setUsers(
             users.map((u) =>
-                u.id === id ? { ...u, status: u.status === 'active' ? 'inactive' : 'active' } : u
+                u.id === user.id ? { ...u, status: newStatus } : u
             )
         )
+        toast.success(`Đã ${newStatus === 'active' ? 'kích hoạt' : 'vô hiệu hóa'} user`)
     }
 
     return (
@@ -128,50 +154,57 @@ const AdminUsers = () => {
                     <h1 className="text-3xl font-bold text-gray-800">Quản lý Users</h1>
                     <p className="text-gray-600 mt-2">Tổng: {filteredUsers.length} users</p>
                 </div>
-                <Button onClick={() => setShowModal(true)}>+ Thêm User</Button>
+                <Button onClick={() => setShowModal(true)}>
+                    <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Thêm User
+                </Button>
             </div>
 
             {/* Filters */}
             <Card className="mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                     <div className="md:col-span-2">
-                        <Input
-                            label="Tìm kiếm"
-                            placeholder="Tìm theo tên hoặc email..."
+                        <FloatingInput
+                            id="search"
+                            name="search"
+                            type="text"
+                            label="Tìm kiếm theo tên hoặc email"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Vai trò
-                        </label>
-                        <select
-                            value={filterRole}
-                            onChange={(e) => setFilterRole(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                            <option value="all">Tất cả</option>
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
+                    <FloatingReactSelect
+                        id="filterRole"
+                        name="filterRole"
+                        label="Vai trò"
+                        value={filterRole}
+                        onChange={(e) => setFilterRole(e.target.value)}
+                        options={[
+                            { value: 'all', label: 'Tất cả' },
+                            { value: 'user', label: '👤 User' },
+                            { value: 'admin', label: '👑 Admin' },
+                        ]}
+                        isSearchable={false}
+                        isClearable={false}
+                    />
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Trạng thái
-                        </label>
-                        <select
-                            value={filterStatus}
-                            onChange={(e) => setFilterStatus(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                            <option value="all">Tất cả</option>
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
-                        </select>
-                    </div>
+                    <FloatingReactSelect
+                        id="filterStatus"
+                        name="filterStatus"
+                        label="Trạng thái"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        options={[
+                            { value: 'all', label: 'Tất cả' },
+                            { value: 'active', label: '✅ Hoạt động' },
+                            { value: 'inactive', label: '❌ Không hoạt động' },
+                        ]}
+                        isSearchable={false}
+                        isClearable={false}
+                    />
                 </div>
             </Card>
 
@@ -232,33 +265,39 @@ const AdminUsers = () => {
                                         </td>
                                         <td className="py-3 px-4">
                                             <button
-                                                onClick={() => handleToggleStatus(user.id)}
-                                                className={`px-2 py-1 rounded-full text-xs cursor-pointer hover:opacity-80 ${
+                                                onClick={() => handleToggleStatus(user)}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer hover:opacity-80 transition ${
                                                     user.status === 'active'
                                                         ? 'bg-green-100 text-green-800'
                                                         : 'bg-gray-100 text-gray-800'
                                                 }`}
                                             >
-                                                {user.status === 'active'
-                                                    ? 'Hoạt động'
-                                                    : 'Không hoạt động'}
+                                                {user.status === 'active' ? '✅ Hoạt động' : '❌ Không hoạt động'}
                                             </button>
                                         </td>
                                         <td className="py-3 px-4 text-gray-600 text-sm">
-                                            {user.createdAt}
+                                            {new Date(user.createdAt).toLocaleDateString('vi-VN')}
                                         </td>
                                         <td className="py-3 px-4">
                                             <div className="flex space-x-2">
                                                 <button
                                                     onClick={() => handleEditUser(user)}
-                                                    className="text-blue-600 hover:text-blue-800"
+                                                    className="px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition"
+                                                    title="Sửa user"
                                                 >
+                                                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                    </svg>
                                                     Sửa
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDeleteUser(user.id)}
-                                                    className="text-red-600 hover:text-red-800"
+                                                    onClick={() => handleDeleteUser(user)}
+                                                    className="px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition"
+                                                    title="Xóa user"
                                                 >
+                                                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
                                                     Xóa
                                                 </button>
                                             </div>
@@ -273,55 +312,73 @@ const AdminUsers = () => {
 
             {/* Add User Modal */}
             <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Thêm User mới">
-                <form onSubmit={handleAddUser}>
-                    <Input
-                        label="Tên"
+                <form onSubmit={handleAddUser} className="space-y-5">
+                    <FloatingInput
+                        id="newUserName"
                         name="name"
+                        type="text"
+                        label="Họ và tên"
                         value={newUser.name}
                         onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
                         required
+                        autoComplete="name"
                     />
-                    <Input
-                        label="Email"
-                        type="email"
+
+                    <FloatingInput
+                        id="newUserEmail"
                         name="email"
+                        type="email"
+                        label="Email"
                         value={newUser.email}
                         onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                         required
+                        autoComplete="email"
                     />
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Vai trò
-                        </label>
-                        <select
-                            value={newUser.role}
-                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                            <option value="user">User</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Trạng thái
-                        </label>
-                        <select
-                            value={newUser.status}
-                            onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                            <option value="active">Hoạt động</option>
-                            <option value="inactive">Không hoạt động</option>
-                        </select>
-                    </div>
-                    <div className="flex space-x-4">
-                        <Button type="submit">Thêm</Button>
-                        <Button
-                            type="button"
-                            variant="secondary"
-                            onClick={() => setShowModal(false)}
-                        >
+
+                    <FloatingInput
+                        id="newUserPassword"
+                        name="password"
+                        type="password"
+                        label="Mật khẩu"
+                        value={newUser.password}
+                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                        required
+                        autoComplete="new-password"
+                    />
+
+                    <FloatingReactSelect
+                        id="newUserRole"
+                        name="role"
+                        label="Vai trò"
+                        value={newUser.role}
+                        onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                        options={[
+                            { value: 'user', label: '👤 User' },
+                            { value: 'admin', label: '👑 Admin' },
+                        ]}
+                        required
+                        isSearchable={false}
+                        isClearable={false}
+                    />
+
+                    <FloatingReactSelect
+                        id="newUserStatus"
+                        name="status"
+                        label="Trạng thái"
+                        value={newUser.status}
+                        onChange={(e) => setNewUser({ ...newUser, status: e.target.value })}
+                        options={[
+                            { value: 'active', label: '✅ Hoạt động' },
+                            { value: 'inactive', label: '❌ Không hoạt động' },
+                        ]}
+                        required
+                        isSearchable={false}
+                        isClearable={false}
+                    />
+
+                    <div className="flex space-x-4 pt-4">
+                        <Button type="submit">Thêm User</Button>
+                        <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
                             Hủy
                         </Button>
                     </div>
@@ -338,57 +395,60 @@ const AdminUsers = () => {
                 title="Chỉnh sửa User"
             >
                 {editingUser && (
-                    <form onSubmit={handleUpdateUser}>
-                        <Input
-                            label="Tên"
+                    <form onSubmit={handleUpdateUser} className="space-y-5">
+                        <FloatingInput
+                            id="editUserName"
                             name="name"
+                            type="text"
+                            label="Họ và tên"
                             value={editingUser.name}
-                            onChange={(e) =>
-                                setEditingUser({ ...editingUser, name: e.target.value })
-                            }
+                            onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
                             required
+                            autoComplete="name"
                         />
-                        <Input
-                            label="Email"
-                            type="email"
+
+                        <FloatingInput
+                            id="editUserEmail"
                             name="email"
+                            type="email"
+                            label="Email"
                             value={editingUser.email}
-                            onChange={(e) =>
-                                setEditingUser({ ...editingUser, email: e.target.value })
-                            }
+                            onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
                             required
+                            autoComplete="email"
                         />
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Vai trò
-                            </label>
-                            <select
-                                value={editingUser.role}
-                                onChange={(e) =>
-                                    setEditingUser({ ...editingUser, role: e.target.value })
-                                }
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            >
-                                <option value="user">User</option>
-                                <option value="admin">Admin</option>
-                            </select>
-                        </div>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Trạng thái
-                            </label>
-                            <select
-                                value={editingUser.status}
-                                onChange={(e) =>
-                                    setEditingUser({ ...editingUser, status: e.target.value })
-                                }
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            >
-                                <option value="active">Hoạt động</option>
-                                <option value="inactive">Không hoạt động</option>
-                            </select>
-                        </div>
-                        <div className="flex space-x-4">
+
+                        <FloatingReactSelect
+                            id="editUserRole"
+                            name="role"
+                            label="Vai trò"
+                            value={editingUser.role}
+                            onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                            options={[
+                                { value: 'user', label: '👤 User' },
+                                { value: 'admin', label: '👑 Admin' },
+                            ]}
+                            required
+                            isSearchable={false}
+                            isClearable={false}
+                        />
+
+                        <FloatingReactSelect
+                            id="editUserStatus"
+                            name="status"
+                            label="Trạng thái"
+                            value={editingUser.status}
+                            onChange={(e) => setEditingUser({ ...editingUser, status: e.target.value })}
+                            options={[
+                                { value: 'active', label: '✅ Hoạt động' },
+                                { value: 'inactive', label: '❌ Không hoạt động' },
+                            ]}
+                            required
+                            isSearchable={false}
+                            isClearable={false}
+                        />
+
+                        <div className="flex space-x-4 pt-4">
                             <Button type="submit">Cập nhật</Button>
                             <Button
                                 type="button"
@@ -404,6 +464,19 @@ const AdminUsers = () => {
                     </form>
                 )}
             </Modal>
+
+            {/* Confirm Delete Dialog */}
+            <ConfirmDialog
+                isOpen={deleteConfirm.isOpen}
+                onClose={() => setDeleteConfirm({ isOpen: false, userId: null, userName: '' })}
+                onConfirm={confirmDelete}
+                title="Xác nhận xóa user"
+                message={`Bạn có chắc chắn muốn xóa user "${deleteConfirm.userName}"? Hành động này không thể hoàn tác.`}
+                confirmText="Xóa"
+                cancelText="Hủy"
+                type="danger"
+                isLoading={isDeleting}
+            />
         </div>
     )
 }

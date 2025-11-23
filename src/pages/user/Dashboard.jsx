@@ -2,8 +2,10 @@ import { useAuth } from '../../hooks/useAuth'
 import Card from '../../components/common/Card'
 import ToastDemo from '../../components/common/ToastDemo'
 import FloatingSelectDemo from '../../components/common/FloatingSelectDemo'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const UserDashboard = () => {
+    usePageTitle('Bảng điều khiển')
     const { user } = useAuth()
 
     const stats = [

@@ -1,6 +1,8 @@
 import Card from '../../components/common/Card'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const AdminDashboard = () => {
+    usePageTitle('Bảng điều khiển Admin')
     const stats = [
         { label: 'Tổng Users', value: '1,234', icon: '👥', color: 'bg-blue-500', change: '+12%' },
         { label: 'Doanh thu', value: '₫45.2M', icon: '💰', color: 'bg-green-500', change: '+8%' },

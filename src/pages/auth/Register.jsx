@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
 import toast from '../../utils/toast'
 import FloatingInput from '../../components/common/FloatingInput'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const Register = () => {
+    usePageTitle('Đăng ký tài khoản')
     const [formData, setFormData] = useState({
         name: '',
         email: '',

@@ -1,6 +1,8 @@
 import Card from '../../components/common/Card'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const About = () => {
+    usePageTitle('Giới thiệu')
     return (
         <div className="container mx-auto px-4 py-12">
             <div className="max-w-4xl mx-auto">

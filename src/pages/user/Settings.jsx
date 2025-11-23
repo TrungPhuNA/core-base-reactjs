@@ -2,8 +2,10 @@ import { useState } from 'react'
 import Card from '../../components/common/Card'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const UserSettings = () => {
+    usePageTitle('Cài đặt')
     const [notifications, setNotifications] = useState({
         email: true,
         push: false,

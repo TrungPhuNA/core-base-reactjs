@@ -4,8 +4,10 @@ import { useAuth } from '../../hooks/useAuth'
 import toast from '../../utils/toast'
 import FloatingInput from '../../components/common/FloatingInput'
 import FloatingReactSelect from '../../components/common/FloatingReactSelect'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const Login = () => {
+    usePageTitle('Đăng nhập')
     const [formData, setFormData] = useState({
         email: '',
         password: '',

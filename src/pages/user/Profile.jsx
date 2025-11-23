@@ -3,8 +3,10 @@ import { useAuth } from '../../hooks/useAuth'
 import Card from '../../components/common/Card'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const UserProfile = () => {
+    usePageTitle('Hồ sơ cá nhân')
     const { user, login } = useAuth()
     const [activeTab, setActiveTab] = useState('profile')
     const [isEditing, setIsEditing] = useState(false)

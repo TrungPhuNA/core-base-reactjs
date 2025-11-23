@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import FloatingInput from '../../components/common/FloatingInput'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const ResetPassword = () => {
+    usePageTitle('Đặt lại mật khẩu')
     const [searchParams] = useSearchParams()
     const token = searchParams.get('token')
     const [formData, setFormData] = useState({

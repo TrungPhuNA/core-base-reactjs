@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import FloatingInput from '../../components/common/FloatingInput'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const ForgotPassword = () => {
+    usePageTitle('Quên mật khẩu')
     const [email, setEmail] = useState('')
     const [submitted, setSubmitted] = useState(false)
 

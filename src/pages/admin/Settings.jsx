@@ -2,8 +2,10 @@ import { useState } from 'react'
 import Card from '../../components/common/Card'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const AdminSettings = () => {
+    usePageTitle('Cấu hình')
     const [settings, setSettings] = useState({
         siteName: 'FE Base',
         siteDescription: 'React + TailwindCSS Base Project',

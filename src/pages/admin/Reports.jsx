@@ -1,6 +1,8 @@
 import Card from '../../components/common/Card'
+import usePageTitle from '../../hooks/usePageTitle'
 
 const AdminReports = () => {
+    usePageTitle('Báo cáo')
     const salesData = [
         { month: 'Tháng 1', revenue: '₫12.5M', orders: 145, growth: '+12%' },
         { month: 'Tháng 2', revenue: '₫15.2M', orders: 178, growth: '+21%' },
