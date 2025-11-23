@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import FloatingInput from '../../components/common/FloatingInput'
 import usePageTitle from '../../hooks/usePageTitle'
+import toast from '../../utils/toast'
 
 const ResetPassword = () => {
     usePageTitle('Đặt lại mật khẩu')
@@ -11,25 +12,51 @@ const ResetPassword = () => {
         password: '',
         confirmPassword: '',
     })
+    const [errors, setErrors] = useState({})
     const [success, setSuccess] = useState(false)
     const navigate = useNavigate()
+
+    const validateForm = () => {
+        const newErrors = {}
+
+        if (!formData.password || formData.password.trim() === '') {
+            newErrors.password = 'Vui lòng nhập mật khẩu mới'
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+        }
+
+        if (!formData.confirmPassword || formData.confirmPassword.trim() === '') {
+            newErrors.confirmPassword = 'Vui lòng xác nhận mật khẩu'
+        } else if (formData.password !== formData.confirmPassword) {
+            newErrors.confirmPassword = 'Mật khẩu không khớp'
+        }
+
+        return newErrors
+    }
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         })
+        // Clear error when user types
+        if (errors[e.target.name]) {
+            setErrors({ ...errors, [e.target.name]: '' })
+        }
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
 
-        if (formData.password !== formData.confirmPassword) {
-            alert('Mật khẩu không khớp!')
+        // Validate
+        const validationErrors = validateForm()
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors)
             return
         }
 
         // Mock reset password
+        toast.success('Đặt lại mật khẩu thành công!')
         setSuccess(true)
 
         // Redirect to login after 2 seconds
@@ -76,23 +103,40 @@ const ResetPassword = () => {
                         label="Mật khẩu mới"
                         value={formData.password}
                         onChange={handleChange}
-                        required
                         autoComplete="new-password"
                     />
-                    <p className="text-xs text-gray-500 mt-1.5 ml-1">Tối thiểu 6 ký tự</p>
+                    {errors.password ? (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.password}
+                        </p>
+                    ) : (
+                        <p className="text-xs text-gray-500 mt-1.5 ml-1">Tối thiểu 6 ký tự</p>
+                    )}
                 </div>
 
                 {/* Confirm Password */}
-                <FloatingInput
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    label="Xác nhận mật khẩu mới"
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    required
-                    autoComplete="new-password"
-                />
+                <div>
+                    <FloatingInput
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        label="Xác nhận mật khẩu mới"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                    />
+                    {errors.confirmPassword && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.confirmPassword}
+                        </p>
+                    )}
+                </div>
 
                 {/* Submit Button */}
                 <button

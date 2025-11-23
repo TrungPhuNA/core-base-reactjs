@@ -79,6 +79,35 @@ const AdminUsers = () => {
         status: 'active',
     })
 
+    const [errors, setErrors] = useState({})
+
+    // Validation function
+    const validateForm = (data, isEdit = false) => {
+        const newErrors = {}
+
+        if (!data.name || data.name.trim() === '') {
+            newErrors.name = 'Vui lòng nhập tên'
+        } else if (data.name.trim().length < 2) {
+            newErrors.name = 'Tên phải có ít nhất 2 ký tự'
+        }
+
+        if (!data.email || data.email.trim() === '') {
+            newErrors.email = 'Vui lòng nhập email'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+            newErrors.email = 'Email không hợp lệ'
+        }
+
+        if (!isEdit) {
+            if (!data.password || data.password.trim() === '') {
+                newErrors.password = 'Vui lòng nhập mật khẩu'
+            } else if (data.password.length < 6) {
+                newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+            }
+        }
+
+        return newErrors
+    }
+
     // Filter and search users
     const filteredUsers = useMemo(() => {
         return users.filter((user) => {
@@ -94,6 +123,14 @@ const AdminUsers = () => {
 
     const handleAddUser = (e) => {
         e.preventDefault()
+
+        // Validate
+        const validationErrors = validateForm(newUser, false)
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors)
+            return
+        }
+
         const user = {
             id: users.length + 1,
             ...newUser,
@@ -102,6 +139,7 @@ const AdminUsers = () => {
         setUsers([...users, user])
         toast.success('Thêm user thành công!')
         setNewUser({ name: '', email: '', password: '', role: 'user', status: 'active' })
+        setErrors({})
         setShowModal(false)
     }
 
@@ -112,8 +150,17 @@ const AdminUsers = () => {
 
     const handleUpdateUser = (e) => {
         e.preventDefault()
+
+        // Validate
+        const validationErrors = validateForm(editingUser, true)
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors)
+            return
+        }
+
         setUsers(users.map((u) => (u.id === editingUser.id ? editingUser : u)))
         toast.success('Cập nhật user thành công!')
+        setErrors({})
         setShowEditModal(false)
         setEditingUser(null)
     }
@@ -260,10 +307,12 @@ const AdminUsers = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                filteredUsers.map((user) => (
+                                filteredUsers.map((user, index) => (
                                     <tr
                                         key={user.id}
-                                        className="border-b last:border-b-0 hover:bg-gray-50"
+                                        className={`border-b last:border-b-0 hover:bg-blue-50 transition-colors ${
+                                            index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                                        }`}
                                     >
                                         <td className="py-3 px-4">{user.id}</td>
                                         <td className="py-3 px-4 font-medium">{user.name}</td>
@@ -329,38 +378,74 @@ const AdminUsers = () => {
             {/* Add User Modal */}
             <Modal isOpen={showModal} onClose={() => setShowModal(false)} title="Thêm User mới">
                 <form onSubmit={handleAddUser} className="space-y-5">
-                    <FloatingInput
-                        id="newUserName"
-                        name="name"
-                        type="text"
-                        label="Họ và tên"
-                        value={newUser.name}
-                        onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-                        required
-                        autoComplete="name"
-                    />
+                    <div>
+                        <FloatingInput
+                            id="newUserName"
+                            name="name"
+                            type="text"
+                            label="Họ và tên"
+                            value={newUser.name}
+                            onChange={(e) => {
+                                setNewUser({ ...newUser, name: e.target.value })
+                                if (errors.name) setErrors({ ...errors, name: '' })
+                            }}
+                            autoComplete="name"
+                        />
+                        {errors.name && (
+                            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                {errors.name}
+                            </p>
+                        )}
+                    </div>
 
-                    <FloatingInput
-                        id="newUserEmail"
-                        name="email"
-                        type="email"
-                        label="Email"
-                        value={newUser.email}
-                        onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                        required
-                        autoComplete="email"
-                    />
+                    <div>
+                        <FloatingInput
+                            id="newUserEmail"
+                            name="email"
+                            type="email"
+                            label="Email"
+                            value={newUser.email}
+                            onChange={(e) => {
+                                setNewUser({ ...newUser, email: e.target.value })
+                                if (errors.email) setErrors({ ...errors, email: '' })
+                            }}
+                            autoComplete="email"
+                        />
+                        {errors.email && (
+                            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                {errors.email}
+                            </p>
+                        )}
+                    </div>
 
-                    <FloatingInput
-                        id="newUserPassword"
-                        name="password"
-                        type="password"
-                        label="Mật khẩu"
-                        value={newUser.password}
-                        onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                        required
-                        autoComplete="new-password"
-                    />
+                    <div>
+                        <FloatingInput
+                            id="newUserPassword"
+                            name="password"
+                            type="password"
+                            label="Mật khẩu"
+                            value={newUser.password}
+                            onChange={(e) => {
+                                setNewUser({ ...newUser, password: e.target.value })
+                                if (errors.password) setErrors({ ...errors, password: '' })
+                            }}
+                            autoComplete="new-password"
+                        />
+                        {errors.password && (
+                            <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                                {errors.password}
+                            </p>
+                        )}
+                    </div>
 
                     <FloatingReactSelect
                         id="newUserRole"
@@ -372,7 +457,6 @@ const AdminUsers = () => {
                             { value: 'user', label: '👤 User' },
                             { value: 'admin', label: '👑 Admin' },
                         ]}
-                        required
                         isSearchable={false}
                         isClearable={false}
                     />
@@ -387,14 +471,16 @@ const AdminUsers = () => {
                             { value: 'active', label: '✅ Hoạt động' },
                             { value: 'inactive', label: '❌ Không hoạt động' },
                         ]}
-                        required
                         isSearchable={false}
                         isClearable={false}
                     />
 
                     <div className="flex space-x-4 pt-4">
                         <Button type="submit">Thêm User</Button>
-                        <Button type="button" variant="secondary" onClick={() => setShowModal(false)}>
+                        <Button type="button" variant="secondary" onClick={() => {
+                            setShowModal(false)
+                            setErrors({})
+                        }}>
                             Hủy
                         </Button>
                     </div>
@@ -412,27 +498,51 @@ const AdminUsers = () => {
             >
                 {editingUser && (
                     <form onSubmit={handleUpdateUser} className="space-y-5">
-                        <FloatingInput
-                            id="editUserName"
-                            name="name"
-                            type="text"
-                            label="Họ và tên"
-                            value={editingUser.name}
-                            onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                            required
-                            autoComplete="name"
-                        />
+                        <div>
+                            <FloatingInput
+                                id="editUserName"
+                                name="name"
+                                type="text"
+                                label="Họ và tên"
+                                value={editingUser.name}
+                                onChange={(e) => {
+                                    setEditingUser({ ...editingUser, name: e.target.value })
+                                    if (errors.name) setErrors({ ...errors, name: '' })
+                                }}
+                                autoComplete="name"
+                            />
+                            {errors.name && (
+                                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    {errors.name}
+                                </p>
+                            )}
+                        </div>
 
-                        <FloatingInput
-                            id="editUserEmail"
-                            name="email"
-                            type="email"
-                            label="Email"
-                            value={editingUser.email}
-                            onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                            required
-                            autoComplete="email"
-                        />
+                        <div>
+                            <FloatingInput
+                                id="editUserEmail"
+                                name="email"
+                                type="email"
+                                label="Email"
+                                value={editingUser.email}
+                                onChange={(e) => {
+                                    setEditingUser({ ...editingUser, email: e.target.value })
+                                    if (errors.email) setErrors({ ...errors, email: '' })
+                                }}
+                                autoComplete="email"
+                            />
+                            {errors.email && (
+                                <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                    </svg>
+                                    {errors.email}
+                                </p>
+                            )}
+                        </div>
 
                         <FloatingReactSelect
                             id="editUserRole"
@@ -444,7 +554,6 @@ const AdminUsers = () => {
                                 { value: 'user', label: '👤 User' },
                                 { value: 'admin', label: '👑 Admin' },
                             ]}
-                            required
                             isSearchable={false}
                             isClearable={false}
                         />
@@ -459,7 +568,6 @@ const AdminUsers = () => {
                                 { value: 'active', label: '✅ Hoạt động' },
                                 { value: 'inactive', label: '❌ Không hoạt động' },
                             ]}
-                            required
                             isSearchable={false}
                             isClearable={false}
                         />
@@ -472,6 +580,7 @@ const AdminUsers = () => {
                                 onClick={() => {
                                     setShowEditModal(false)
                                     setEditingUser(null)
+                                    setErrors({})
                                 }}
                             >
                                 Hủy

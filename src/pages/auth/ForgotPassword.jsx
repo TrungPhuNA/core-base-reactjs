@@ -7,9 +7,30 @@ const ForgotPassword = () => {
     usePageTitle('Quên mật khẩu')
     const [email, setEmail] = useState('')
     const [submitted, setSubmitted] = useState(false)
+    const [errors, setErrors] = useState({})
+
+    const validateForm = () => {
+        const newErrors = {}
+
+        if (!email || email.trim() === '') {
+            newErrors.email = 'Vui lòng nhập email'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            newErrors.email = 'Email không hợp lệ'
+        }
+
+        return newErrors
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
+
+        // Validate
+        const validationErrors = validateForm()
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors)
+            return
+        }
+
         // Mock send reset email
         setSubmitted(true)
     }
@@ -66,16 +87,28 @@ const ForgotPassword = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
-                <FloatingInput
-                    id="email"
-                    name="email"
-                    type="email"
-                    label="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                />
+                <div>
+                    <FloatingInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Email"
+                        value={email}
+                        onChange={(e) => {
+                            setEmail(e.target.value)
+                            if (errors.email) setErrors({ ...errors, email: '' })
+                        }}
+                        autoComplete="email"
+                    />
+                    {errors.email && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.email}
+                        </p>
+                    )}
+                </div>
 
                 {/* Submit Button */}
                 <button

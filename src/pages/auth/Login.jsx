@@ -14,8 +14,27 @@ const Login = () => {
         role: 'user',
         remember: false,
     })
+    const [errors, setErrors] = useState({})
     const { login } = useAuth()
     const navigate = useNavigate()
+
+    const validateForm = () => {
+        const newErrors = {}
+
+        if (!formData.email || formData.email.trim() === '') {
+            newErrors.email = 'Vui lòng nhập email'
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+            newErrors.email = 'Email không hợp lệ'
+        }
+
+        if (!formData.password || formData.password.trim() === '') {
+            newErrors.password = 'Vui lòng nhập mật khẩu'
+        } else if (formData.password.length < 6) {
+            newErrors.password = 'Mật khẩu phải có ít nhất 6 ký tự'
+        }
+
+        return newErrors
+    }
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target
@@ -23,10 +42,21 @@ const Login = () => {
             ...formData,
             [name]: type === 'checkbox' ? checked : value,
         })
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors({ ...errors, [name]: '' })
+        }
     }
 
     const handleSubmit = (e) => {
         e.preventDefault()
+
+        // Validate
+        const validationErrors = validateForm()
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors)
+            return
+        }
 
         // Mock login
         const userData = {
@@ -58,28 +88,46 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
-                <FloatingInput
-                    id="email"
-                    name="email"
-                    type="email"
-                    label="Email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    autoComplete="email"
-                />
+                <div>
+                    <FloatingInput
+                        id="email"
+                        name="email"
+                        type="email"
+                        label="Email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        autoComplete="email"
+                    />
+                    {errors.email && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.email}
+                        </p>
+                    )}
+                </div>
 
                 {/* Password */}
-                <FloatingInput
-                    id="password"
-                    name="password"
-                    type="password"
-                    label="Mật khẩu"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    autoComplete="current-password"
-                />
+                <div>
+                    <FloatingInput
+                        id="password"
+                        name="password"
+                        type="password"
+                        label="Mật khẩu"
+                        value={formData.password}
+                        onChange={handleChange}
+                        autoComplete="current-password"
+                    />
+                    {errors.password && (
+                        <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                            {errors.password}
+                        </p>
+                    )}
+                </div>
 
                 {/* Role Selection */}
                 <FloatingReactSelect
