@@ -149,66 +149,82 @@ const AdminUsers = () => {
 
     return (
         <div>
-            <div className="mb-8 flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">Quản lý Users</h1>
-                    <p className="text-gray-600 mt-2">Tổng: {filteredUsers.length} users</p>
+            {/* Compact Filter Bar */}
+            <div className="mb-6 flex flex-wrap items-center gap-3">
+                {/* Search with Icon */}
+                <div className="flex-1 min-w-[200px] relative">
+                    <svg
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        />
+                    </svg>
+                    <input
+                        type="text"
+                        placeholder="Tìm kiếm..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                    />
                 </div>
-                <Button onClick={() => setShowModal(true)}>
-                    <svg className="w-5 h-5 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                {/* Role Filter */}
+                <select
+                    value={filterRole}
+                    onChange={(e) => setFilterRole(e.target.value)}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm cursor-pointer"
+                >
+                    <option value="all">Vai trò</option>
+                    <option value="user">👤 User</option>
+                    <option value="admin">👑 Admin</option>
+                </select>
+
+                {/* Status Filter */}
+                <select
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                    className="px-3 py-2 bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm cursor-pointer"
+                >
+                    <option value="all">Trạng thái</option>
+                    <option value="active">✅ Hoạt động</option>
+                    <option value="inactive">❌ Không hoạt động</option>
+                </select>
+
+                {/* Clear Filters */}
+                {(searchTerm || filterRole !== 'all' || filterStatus !== 'all') && (
+                    <button
+                        onClick={() => {
+                            setSearchTerm('')
+                            setFilterRole('all')
+                            setFilterStatus('all')
+                        }}
+                        className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        title="Xóa bộ lọc"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                )}
+
+                {/* Add User Button */}
+                <Button onClick={() => setShowModal(true)} className="whitespace-nowrap">
+                    <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     Thêm User
                 </Button>
             </div>
 
-            {/* Filters */}
-            <Card className="mb-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    <div className="md:col-span-2">
-                        <FloatingInput
-                            id="search"
-                            name="search"
-                            type="text"
-                            label="Tìm kiếm theo tên hoặc email"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-
-                    <FloatingReactSelect
-                        id="filterRole"
-                        name="filterRole"
-                        label="Vai trò"
-                        value={filterRole}
-                        onChange={(e) => setFilterRole(e.target.value)}
-                        options={[
-                            { value: 'all', label: 'Tất cả' },
-                            { value: 'user', label: '👤 User' },
-                            { value: 'admin', label: '👑 Admin' },
-                        ]}
-                        isSearchable={false}
-                        isClearable={false}
-                    />
-
-                    <FloatingReactSelect
-                        id="filterStatus"
-                        name="filterStatus"
-                        label="Trạng thái"
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                        options={[
-                            { value: 'all', label: 'Tất cả' },
-                            { value: 'active', label: '✅ Hoạt động' },
-                            { value: 'inactive', label: '❌ Không hoạt động' },
-                        ]}
-                        isSearchable={false}
-                        isClearable={false}
-                    />
-                </div>
-            </Card>
-
             <Card>
+
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>

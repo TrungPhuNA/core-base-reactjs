@@ -47,6 +47,12 @@ const UserLayout = () => {
 
     const isActive = (path) => location.pathname === path
 
+    // Get page title based on current route
+    const getPageTitle = () => {
+        const currentItem = menuItems.find((item) => item.path === location.pathname)
+        return currentItem ? currentItem.label : 'Bảng điều khiển'
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar */}
@@ -107,8 +113,8 @@ const UserLayout = () => {
                 <header className="bg-white border-b border-gray-200">
                     <div className="px-6 py-3.5">
                         <div className="flex items-center justify-between">
-                            {/* Page Title */}
-                            <h1 className="text-lg font-semibold text-gray-800">Bảng điều khiển</h1>
+                            {/* Page Title - Dynamic */}
+                            <h1 className="text-lg font-semibold text-gray-800">{getPageTitle()}</h1>
 
                             {/* Header Actions */}
                             <div className="flex items-center space-x-3">
@@ -117,7 +123,7 @@ const UserLayout = () => {
                                     <input
                                         type="text"
                                         placeholder="Tìm kiếm..."
-                                        className="w-56 pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-56 pl-9 pr-4 py-2 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     />
                                     <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
